@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Fetch Test</title>
+</head>
+<body>
+    <form id="eligibilityForm">
+        <input type="text" id="memberName" placeholder="Member Name" value="Mohamed">
+        <input type="text" id="memberId" placeholder="Member ID" value="M06">
+        <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('eligibilityForm').addEventListener('submit', async function(event) {
+    event.preventDefault();  // Prevent the form from refreshing the page
+    
+    const memberName = document.getElementById('memberName').value;
+    const memberId = document.getElementById('memberId').value;
+    
+    console.log('Fetching data for:', memberName, memberId);
+
+    try {
+        const url = `http://localhost:8080/api/simple-test`;
+
+        const headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3',
+            'Accept': 'application/json',
+        };
+        console.log('Headers:', headers);
+
+        const response = await fetch(url, {
+            headers: headers,
+        });
+        console.log('Status:', response.status);
+
+        response.headers.forEach((value, name) => {
+            console.log(`${name}: ${value}`);
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+        }
+
+        const text = await response.text();
+        console.log('Response text:', text);
+
+        const contentType = response.headers.get("content-type");
+        console.log('Content-Type:', contentType);
+
+        if (contentType && contentType.includes("application/json")) {
+            const data = JSON.parse(text);
+            console.log('Data:', data);
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        } else {
+            console.warn('The content type is not JSON');
+            document.getElementById('result').innerText = "The content type is not JSON";
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error.message);
+        document.getElementById('result').innerText = `Error: ${error.message}`;
+    }
+});
+
+
+
+    </script>
+</body>
+</html>
