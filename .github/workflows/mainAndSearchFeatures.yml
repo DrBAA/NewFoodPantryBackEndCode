@@ -57,11 +57,13 @@ jobs:
       - name: Connect to Aiven Database
         run: |
           mysql --ssl-ca=ca.pem \
-                -h $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*@\(.*\):.*/\1/p') \
-                -P $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*:\([0-9]*\)\/.*/\1/p') \
-                -u $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/jdbc:mysql:\/\/\([^:]*\):.*/\1/p') \
-                -p$(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*:\([^@]*\)@.*/\1/p') \
+                -h ${{ secrets.DB_HOST }} \
+                -P ${{ secrets.DB_PORT }} \
+                -u ${{ secrets.DB_USER }} \
+                -p${{ secrets.DB_PASSWORD }} \
+                ${{ secrets.DB_NAME }} \
                 -e "SHOW TABLES;"
+
 
       # Step 7: Build and Test Application
       - name: Build and Test with Maven
