@@ -1,0 +1,77 @@
+# github action workflow.
+# # This workflow automates building and testing for the main and feature branches, including feature-searching.
+# # This workflow is triggered on:
+#  - Push events to the main branch and feature branches (e.g., feature-searching).
+#  - Pull requests targeting the main branch.
+# After triggering, it checks out the code, sets up Java (JDK 21), caches Maven dependencies, 
+# and runs the Maven build to compile and test the project.
+
+name: Build and Test Backend
+
+on:
+  push:
+    branches:
+      - main
+      - feature-search
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # For compatibility with most workflows
+
+    steps:
+      # Step 1: Check out the code
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up JDK 21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Step 3: Cache Maven dependencies
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2
+
+      # Step 4: Decode the SSL Certificate
+      - name: Decode SSL Certificate
+        run: |
+          echo "${{ secrets.DB_SSL_CERT }}" | base64 --decode > ca.pem
+
+      # Step 5: Set Environment Variables from github secrets
+      - name: Set Environment Variables
+        run: |
+          export JDBC_DATABASE_URL=${{ secrets.JDBC_DATABASE_URL }}
+
+      # Step 6: Create MySQL Config File
+      - name: Create MySQL Config File
+        run: |
+          echo "[client]" > ~/.my.cnf
+          echo "user=${{ secrets.DB_USER }}" >> ~/.my.cnf
+          echo "password=${{ secrets.DB_PASSWORD }}" >> ~/.my.cnf
+          echo "host=${{ secrets.DB_HOST }}" >> ~/.my.cnf
+          echo "port=${{ secrets.DB_PORT }}" >> ~/.my.cnf
+          echo "ssl-ca=ca.pem" >> ~/.my.cnf
+          chmod 600 ~/.my.cnf
+
+      # Step 7: Test Database Connection
+      - name: Connect to Aiven Database
+        run: |
+          mysql ${{ secrets.DB_NAME }} -e "SHOW TABLES;"
+
+
+      # Step 8: Build and Test Application
+      - name: Build and Test with Maven
+        run: mvn clean install
+        env:
+          JDBC_DATABASE_URL: ${{ secrets.JDBC_DATABASE_URL }}
