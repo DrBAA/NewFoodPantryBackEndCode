@@ -13,7 +13,7 @@ on:
   push:
     branches:
       - main
-      - feature/*
+      - feature-search
 
   # Trigger on pull requests targeting the main branch
   pull_request:
@@ -48,3 +48,20 @@ jobs:
       # Step 4: Build and Test
       - name: Build with Maven
         run: mvn clean install
+
+      # Step 5: Decode SSL Certificate
+      - name: Decode SSL Certificate
+        run: |
+          echo "${{ secrets.DB_SSL_CERT }}" | base64 -d > ca.pem
+        shell: bash
+
+      # Step 6: Connect to Aiven Database and Run SQL Commands
+      - name: Connect to Aiven Database
+        run: |
+          mysql --ssl-ca=ca.pem -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD -D $DB_NAME -e "SHOW TABLES;"
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
