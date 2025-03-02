@@ -53,19 +53,24 @@ jobs:
         run: |
           export JDBC_DATABASE_URL=${{ secrets.JDBC_DATABASE_URL }}
 
-      # Step 6: Test Database Connection
+      # Step 6: Create MySQL Config File
+      - name: Create MySQL Config File
+        run: |
+          echo "[client]" > ~/.my.cnf
+          echo "user=${{ secrets.DB_USER }}" >> ~/.my.cnf
+          echo "password=${{ secrets.DB_PASSWORD }}" >> ~/.my.cnf
+          echo "host=${{ secrets.DB_HOST }}" >> ~/.my.cnf
+          echo "port=${{ secrets.DB_PORT }}" >> ~/.my.cnf
+          echo "ssl-ca=ca.pem" >> ~/.my.cnf
+          chmod 600 ~/.my.cnf
+
+      # Step 7: Test Database Connection
       - name: Connect to Aiven Database
         run: |
-          mysql --ssl-ca=ca.pem \
-                -h ${{ secrets.DB_HOST }} \
-                -P ${{ secrets.DB_PORT }} \
-                -u ${{ secrets.DB_USER }} \
-                -p${{ secrets.DB_PASSWORD }} \
-                ${{ secrets.DB_NAME }} \
-                -e "SHOW TABLES;"
+          mysql ${{ secrets.DB_NAME }} -e "SHOW TABLES;"
 
 
-      # Step 7: Build and Test Application
+      # Step 8: Build and Test Application
       - name: Build and Test with Maven
         run: mvn clean install
         env:
