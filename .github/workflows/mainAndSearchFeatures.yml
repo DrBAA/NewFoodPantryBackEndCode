@@ -9,20 +9,18 @@
 name: Build and Test Backend
 
 on:
-  # Trigger on push to main and feature branches
   push:
     branches:
       - main
       - feature-search
 
-  # Trigger on pull requests targeting the main branch
   pull_request:
     branches:
       - main
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest  # For compatibility with most workflows
 
     steps:
       # Step 1: Check out the code
@@ -45,23 +43,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-m2
 
-      # Step 4: Build and Test
-      - name: Build with Maven
+      # Step 4: Build and Test Application
+      - name: Build and Test with Maven
         run: mvn clean install
 
-      # Step 5: Decode SSL Certificate
+      # Step 5: Decode the SSL Certificate
       - name: Decode SSL Certificate
         run: |
-          echo "${{ secrets.DB_SSL_CERT }}" | base64 -d > ca.pem
-        shell: bash
+          echo "${{ secrets.DB_SSL_CERT }}" | base64 --decode > ca.pem
 
-      # Step 6: Connect to Aiven Database and Run SQL Commands
+      # Step 6: Test Database Connection
       - name: Connect to Aiven Database
         run: |
-          mysql --ssl-ca=ca.pem -h $DB_HOST -P $DB_PORT -u $DB_USER -p$DB_PASSWORD -D $DB_NAME -e "SHOW TABLES;"
-        env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USER: ${{ secrets.DB_USER }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          mysql --ssl-ca=ca.pem \
+                -h $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*@\(.*\):.*/\1/p') \
+                -P $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*:\([0-9]*\)\/.*/\1/p') \
+                -u $(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/jdbc:mysql:\/\/\([^:]*\):.*/\1/p') \
+                -p$(echo ${{ secrets.JDBC_DATABASE_URL }} | sed -n 's/.*:\([^@]*\)@.*/\1/p') \
+                -e "SHOW TABLES;"
