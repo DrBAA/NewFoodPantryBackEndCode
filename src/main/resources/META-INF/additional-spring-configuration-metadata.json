@@ -28,5 +28,10 @@
     "name": "System.setProperty(\"spring.datasource.driver-class-name\",",
     "type": "java.lang.String",
     "description": "A description for 'System.setProperty(\"spring.datasource.driver-class-name\",'"
+  },
+  {
+    "name": "spring.jpa.hibernate.dialect",
+    "type": "java.lang.String",
+    "description": "A description for 'spring.jpa.hibernate.dialect'"
   }
 ]}

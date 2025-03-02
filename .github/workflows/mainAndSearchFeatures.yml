@@ -68,3 +68,5 @@ jobs:
       # Step 7: Build and Test Application
       - name: Build and Test with Maven
         run: mvn clean install
+        env:
+          JDBC_DATABASE_URL: ${{ secrets.JDBC_DATABASE_URL }}
