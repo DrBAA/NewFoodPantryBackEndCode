@@ -1,8 +1,6 @@
 package com.BethsProjects.MyFoodPantryAPI.FoodPantryAPIClasses;
 
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,13 +46,3 @@ public class IssuesController {
 
 }
 
-
-    // @PostMapping("/api/issue-food-parcel")
-    // public ResponseEntity<String> issueFoodParcel(@RequestParam String member_id,
-    //                                               @RequestParam String food_parcel_id,
-    //                                               @RequestParam String collection_point_id,
-    //                                               @RequestParam(required = false) String date_last_issued,
-    //                                               @RequestParam(required = false) Integer amount_issued) {
-    //     issuesService.issueFoodParcel(member_id, food_parcel_id, collection_point_id, date_last_issued, amount_issued);
-    //     return ResponseEntity.ok("Food parcel successfully issued to member: " + member_id);
-    // } 
