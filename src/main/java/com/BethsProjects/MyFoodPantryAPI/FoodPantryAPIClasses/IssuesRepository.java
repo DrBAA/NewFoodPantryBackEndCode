@@ -1,17 +1,34 @@
 package com.BethsProjects.MyFoodPantryAPI.FoodPantryAPIClasses;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
 
+import java.util.Map;
+
 @Repository
 public class IssuesRepository {
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @PersistenceContext
     private EntityManager entityManager;
+
+    // ✅ Constructor injection ensures `JdbcTemplate` is available
+
+    public IssuesRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public void issueFoodParcel(String member_id,
                                 String food_parcel_id,
@@ -37,16 +54,18 @@ public class IssuesRepository {
 
     // added 01 06 2025 to retrieve the date of last issue for a food parcel from MYSQL database
     public String findLastIssueDate(String member_id) {
+        String sql = "SELECT date_last_issued FROM members_issued_food_parcels WHERE member_id = ? ORDER BY date_last_issued DESC LIMIT 1";
+        
         try {
-            return entityManager.createQuery(
-                "SELECT m.date_last_issued FROM members_issued_food_parcels m WHERE m.member_id = :memberId ORDER BY m.date_last_issued DESC",
-                String.class)
-                .setParameter("memberId", member_id)
-                .setMaxResults(1) // Ensures only the latest issue date is retrieved
-                .getSingleResult();
-        } 
-        catch (NoResultException e) {
-            return null; // Explicitly returns NULL if no previous issue exists
+            Map<String, Object> result = jdbcTemplate.queryForMap(sql, member_id);
+            return result.get("date_last_issued").toString(); // Convert Object to String safely
+
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("No previous issue found for memberId: " + member_id);
+            return null; // Explicitly return NULL if no previous issue exists
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error executing query: " + e.getMessage());
         }
     }
 

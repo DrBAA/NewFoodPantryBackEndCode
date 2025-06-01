@@ -21,7 +21,6 @@ public class IssuesService {
         return repository.findLastIssueDate(member_id);
     }
 
-
 }
 
 
