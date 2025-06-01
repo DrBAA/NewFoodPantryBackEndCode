@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,14 @@ public class IssuesController {
         }
     
     }
+
+    // added 01 06 2025 to retrieve the date of last issue for a food parcel from MYSQL database
+    @GetMapping("/last-issue-date/{memberId}")
+    public ResponseEntity<String> getLastIssueDate(@PathVariable String memberId) {
+        String lastIssueDate = issuesService.getLastIssueDate(memberId);
+        return ResponseEntity.ok(lastIssueDate); // Returns NULL if no record exists
+    }
+
 
 }
 
