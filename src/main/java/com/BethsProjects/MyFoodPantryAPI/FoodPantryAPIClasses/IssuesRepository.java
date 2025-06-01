@@ -2,6 +2,7 @@ package com.BethsProjects.MyFoodPantryAPI.FoodPantryAPIClasses;
 
 import org.springframework.stereotype.Repository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.StoredProcedureQuery;
 import jakarta.persistence.ParameterMode;
@@ -33,6 +34,22 @@ public class IssuesRepository {
 
         query.execute();
     }
+
+    // added 01 06 2025 to retrieve the date of last issue for a food parcel from MYSQL database
+    public String findLastIssueDate(String member_id) {
+        try {
+            return entityManager.createQuery(
+                "SELECT m.date_last_issued FROM members_issued_food_parcels m WHERE m.member_id = :memberId ORDER BY m.date_last_issued DESC",
+                String.class)
+                .setParameter("memberId", member_id)
+                .setMaxResults(1) // Ensures only the latest issue date is retrieved
+                .getSingleResult();
+        } 
+        catch (NoResultException e) {
+            return null; // Explicitly returns NULL if no previous issue exists
+        }
+    }
+
 }
 
 
