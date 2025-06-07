@@ -69,6 +69,21 @@ public class IssuesRepository {
         }
     }
 
+    // added 07 06 2025 to retrieve stock levels for food parcels from MYSQL database
+    public Integer findStockLevelForFoodParcels(String food_parcel_id) {
+        String sql = "SELECT total_food_parcels_remaining FROM food_parcels_for_issue WHERE food_parcel_id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, food_parcel_id); // Directly retrieve as Integer
+        } catch (EmptyResultDataAccessException e) {
+            System.out.println("No such food parcel id found: " + food_parcel_id);
+            return null; // Return null if no record exists
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error executing query: " + e.getMessage());
+        }
+    }
+
 }
 
 
