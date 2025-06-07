@@ -55,6 +55,21 @@ public class IssuesController {
         return ResponseEntity.ok(lastIssueDate); // Returns NULL if no record exists
     }
 
+    // added 07 06 2025 to retrieve stock levels for food parcels from MYSQL database
+    @GetMapping("/food-parcel-quantity/{foodParcelId}")
+    public ResponseEntity<Integer> getFoodParcelQuantity(@PathVariable String foodParcelId) {
+        try {
+            // Call the service to retrieve food parcel quantity
+            Integer quantity = issuesService.getFoodParcelQuantity(foodParcelId);
+            return ResponseEntity.ok(quantity);
+        } catch (IllegalArgumentException ex) {
+            // Handle specific validation-related exceptions
+            return ResponseEntity.status(400).body(null);
+        } catch (Exception ex) {
+            // Handle general exceptions
+            return ResponseEntity.status(500).body(null);
+        }
+    }
 
 }
 

@@ -21,6 +21,11 @@ public class IssuesService {
         return repository.findLastIssueDate(member_id);
     }
 
+    // added 07 06 2025 to retrieve stock levels for food parcels from MYSQL database
+    public Integer getFoodParcelQuantity(String food_parcel_id) {
+        return repository.findStockLevelForFoodParcels(food_parcel_id);
+    }
+
 }
 
 
