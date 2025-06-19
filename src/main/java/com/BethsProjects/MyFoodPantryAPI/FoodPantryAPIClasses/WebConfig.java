@@ -17,7 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOriginPatterns(
+                    "http://localhost:*",
+                    "https://*.ngrok.io",
+                    "https://*.netlify.app"
+                )
+                // .allowedOrigins("*") // accept cross-origin requests from any domain
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowedHeaders("*");
             }
