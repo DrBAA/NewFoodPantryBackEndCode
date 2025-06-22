@@ -19,6 +19,7 @@ public class WebConfig implements WebMvcConfigurer {
                 registry.addMapping("/**")
                 .allowedOriginPatterns(
                     "http://localhost:*",
+                    "http://127.0.0.1:*",
                     "https://*.ngrok.io",
                     "https://*.netlify.app"
                 )
